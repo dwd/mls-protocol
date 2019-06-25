@@ -250,7 +250,7 @@ Member:
   has access to the group's secrets.
 
 Initialization Key:
-: A short-lived HPKE key pair used to introduce a new
+: A short-lived HPKE key pair {{!I-D.barnes-cfrg-hpke}} used to introduce a new
   client to a group.  Initialization keys are published for
   each client (ClientInitKey).
 
@@ -740,7 +740,7 @@ values:
 In this table, the value pk(X) represents the public key
 corresponding derived from the node secret X.  The value E(K, S)
 represents the public-key encryption of the path secret S to the
-public key K.
+public key K. Further details of the encryption function are in {{direct-paths}}.
 
 
 # Cryptographic Objects
@@ -1037,11 +1037,16 @@ the length of the resolution of the corresponding copath node.  Each
 ciphertext in the list is the encryption to the corresponding node
 in the resolution.
 
-The HPKECiphertext values are computed according to the Encrypt
-function defined in {{!I-D.barnes-cfrg-hpke}}.
+The HPKECiphertext values are computed according to the
+functions defined in {{!I-D.barnes-cfrg-hpke}} as follows:
+
+* First, `SetupBaseI(pk, "")` is called with `pk` set to the copath of the current node.
+* HPKECiphertext.ephemeral_key is set to the `enc` return value.
+* Next, `Context.Seal("", pt)` is called with `pt` set to the `node_secret` of the parent node.
+* HPKECiphertext.ciphertext is set to the return value.
 
 Decryption is performed in the corresponding way, using the private
-key of the resolution node and the ephemeral public key
+key of the resolution node and the ephemeral key
 transmitted in the message.
 
 
